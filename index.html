@@ -1171,15 +1171,17 @@ function startUtility(mode) {
                     ${data.metrics.recommendation || data.metrics.message || 'Calculation Complete. See Key Metrics below.'}
                 </p>
             </div>
-            <h3 style="margin-top: 2rem; padding: 0 1rem;">Key Metrics:</h3>
-            <div style="padding: 0 1rem 1.5rem;">
+            <div style="border-top: 1px solid var(--border); margin: 0 1.5rem;"></div> 
+
+            <h3 style="margin-top: 1.5rem; padding: 0 1.5rem;">Key Metrics:</h3>
+            <div style="padding: 0 1.5rem 1.5rem;">
         `;
 
         // 2. Populate Key Metrics list
         for (const [key, value] of Object.entries(data.metrics)) {
-            // Skips the 'savings' key if it exists
+            // Skips the 'savings' key (irrelevant finance)
             if (key === 'savings') continue; 
-            html += `<p><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
+            html += `<p style="margin-bottom: 0.25rem;"><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
         }
         
         // Close the inner padding div
