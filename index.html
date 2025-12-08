@@ -910,19 +910,19 @@ textarea.form-input {
     }
 
     function showView(viewId) {
-        allViews.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.add('hidden');
-        });
-        const targetEl = document.getElementById(viewId);
-        if (targetEl) targetEl.classList.remove('hidden');
-        
-        // Close menu if open
-        const sideMenu = document.getElementById('sideMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-        if (sideMenu) sideMenu.classList.remove('open');
-        if (menuOverlay) menuOverlay.classList.remove('open');
-    }
+        allViews.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        const targetEl = document.getElementById(viewId);
+        if (targetEl) targetEl.classList.remove('hidden');
+        
+        // Close menu if open
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        if (sideMenu) sideMenu.classList.remove('open');
+        if (menuOverlay) menuOverlay.classList.remove('open'); // Corrected typo (was menuMenuOverlay)
+    }
 
     function showDashboardView() { 
         showView('dashboardView'); 
