@@ -780,21 +780,21 @@ textarea.form-input {
         <div id="projectsView" class="hidden">
             <h2 style="font-size: 2rem; margin-bottom: 1rem;">Projects</h2>
        <div id="projectList" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-                         <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
-                <div class="stat-label">Aerospace Titanium Job</div>
-                <div class="stat-value" style="font-size: 1.5rem;">3 Calcs</div>
-                <div class="stat-trend">Last calc: 11/08/2025</div>
-            </div>
-            <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
-                <div class="stat-label">High-Speed Aluminum Part</div>
-                <div class="stat-value" style="font-size: 1.5rem;">1 Calc</div>
-                <div class="stat-trend">Last calc: 11/05/2025</div>
-            </div>
-            <div class="action-card" onclick="openProjectModal()">
-                 <h3 style="margin-bottom: 1rem;">Create New Project</h3>
-                <p>Start a new calculation and save it as a new project.</p>
-            </div>
-        </div>
+                             <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
+                    <div class="stat-label">Aerospace Titanium Job</div>
+                    <div class="stat-value" style="font-size: 1.5rem;">3 Calcs</div>
+                    <div class="stat-trend">Last calc: 11/08/2025</div>
+                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
+                    <div class="stat-label">High-Speed Aluminum Part</div>
+                    <div class="stat-value" style="font-size: 1.5rem;">1 Calc</div>
+                    <div class="stat-trend">Last calc: 11/05/2025</div>
+                </div>
+                <div class="action-card" onclick="openProjectModal()">
+                     <h3 style="margin-bottom: 1rem;">Create New Project</h3>
+                    <p>Start a new calculation and save it as a new project.</p>
+                </div>
+         </div>
 
         <!-- Settings View -->
         <div id="settingsView" class="hidden">
@@ -815,17 +815,28 @@ textarea.form-input {
             <button class="btn-secondary" onclick="requestNotificationPermission()">Enable Notifications</button>
         </div>
 
-        <!-- Project Detail View -->
         <div id="projectDetailView" class="hidden">
-            <button class="btn-secondary" onclick="showProjectsView()">← Back to Projects</button>
-            <div id="projectDetailHeader" style="margin: 2rem 0;">
-                <!-- Project details will be injected here -->
-            </div>
-            <div id="projectScansList" class="sample-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-                <!-- Scans will be injected here -->
-            </div>
+    <button class="btn-secondary" onclick="showProjectsView()">← Back to Projects</button>
+        <div id="projectDetailHeader" style="margin: 2rem 0;">
+        <h2 style="font-size: 2rem;">Project: Aerospace Titanium Job</h2>
+        <p style="color: var(--text-secondary);">Last Updated: 11/08/2025</p>
+    </div>
+    
+    <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Calculations in this Project</h3>
+
+    <div id="projectScansList" class="stats-grid">
+        <div class="stat-card" style="cursor: pointer;">
+            <div class="stat-label">MRR Performance Calc (Run 1)</div>
+            <div class="stat-value" style="font-size: 1.5rem;">Result: Optimal</div>
+            <div class="stat-trend">Run Date: 11/08/2025</div>
+        </div>
+        <div class="stat-card" style="cursor: pointer;">
+            <div class="stat-label">Efficiency Advisor (Run 2)</div>
+            <div class="stat-value" style="font-size: 1.5rem;">Result: Warning</div>
+            <div class="stat-trend">Run Date: 11/07/2025</div>
         </div>
     </div>
+</div>
 <!-- Project Setup Modal -->
 <div id="projectModal" class="modal hidden">
     <div class="modal-content">
