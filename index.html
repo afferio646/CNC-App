@@ -748,9 +748,7 @@ textarea.form-input {
     </div>
 </div>
       
-
-        <!-- Results -->
-     <div id="resultsView" class="hidden">
+<div id="resultsView" class="hidden">
     <button class="btn-secondary" onclick="showDashboardView()">← Start New Calculation</button>
     
     <h2 style="font-size: 2rem; margin: 2rem 0 0.5rem;">Calculation Results</h2>
@@ -765,13 +763,13 @@ textarea.form-input {
             <div class="summary-label">UTILITY MODE</div>
             <div class="summary-value" style="color: var(--danger);" id="issuesCount"></div>
         </div>
-        </div>
+    </div>
     
     <div class="issues-container">
         <div class="issues-header">
             <h3>Calculation Details</h3>
         </div>
-        <div id="issuesList"></div>
+        <div id="issuesList"></div> 
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr; max-width: 400px; margin: 2rem auto;">
@@ -1161,30 +1159,35 @@ function startUtility(mode) {
         document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calc'; 
         document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; 
 
+        // Start generating the content for the 'Calculation Details' box
         let html = `
             <div class="issue-item">
-                <div class="issue-header-row">
+                                <div class="issue-header-row">
                     <div class="issue-title">${data.title}</div>
                     <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
                 </div>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    ${data.metrics.recommendation || data.metrics.message || 'Analysis Complete.'}
+                
+                                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    ${data.metrics.recommendation || data.metrics.message || 'Calculation Complete. See Key Metrics below.'}
                 </p>
             </div>
-            <h3 style="margin-top: 2rem;">Key Metrics:</h3>
+            <h3 style="margin-top: 2rem; padding: 0 1rem;">Key Metrics:</h3>
+            <div style="padding: 0 1rem 1.5rem;">
         `;
 
-        // 2. Populate Key Metrics (Skipping 'savings' and obsolete content)
+        // 2. Populate Key Metrics list
         for (const [key, value] of Object.entries(data.metrics)) {
-            // Skips the 'savings' key to remove redundancy
+            // Skips the 'savings' key if it exists
             if (key === 'savings') continue; 
             html += `<p><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
         }
+        
+        // Close the inner padding div
+        html += `</div>`; 
         
         document.getElementById('issuesList').innerHTML = html;
         window.scrollTo(0, 0);
     }
-
     // --- CORE FUNCTION: Initializes Tracking ---
     function initializeLeadTracking() {
         const urlLeadId = getUrlParameter('leadId');
