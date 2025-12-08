@@ -581,6 +581,86 @@ textarea.form-input {
 .utility-card p {
     color: var(--text-secondary);
 }
+        /* --- NEW STYLES FOR UTILITY INPUT FORMS (Wow Factor) --- */
+.content-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.content-header h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background: var(--bg-dark); /* Darker background for input areas */
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.input-group label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05); /* Semi-transparent background for input fields */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.875rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.util-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.util-desc {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+.large-btn {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1.25rem 2.5rem;
+}
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    transition: color 0.2s;
+}
+.back-btn:hover {
+    color: var(--primary);
+}
     </style>
 </head>
 <body>
@@ -913,20 +993,56 @@ textarea.form-input {
     // =======================================================
     // === SCHUTTE P-OPT UTILITY HUB LOGIC ===
     // =======================================================
+// --- Modal Control Functions ---
+function openProjectModal() {
+    document.getElementById('projectModal').classList.remove('hidden');
+}
 
-    // --- NEW FUNCTION: Starts the chosen utility mode ---
-    function startUtility(mode) {
-        currentUtilityMode = mode;
-        window.selectedSampleKey = mode; 
-        
-        renderInputForm(mode); 
-        
-        // Show the generic input view
-        showView('inputView'); 
-        
-        // Set the calculation button text
-        document.getElementById('calculateBtn').textContent = 
-            mode === 'verify' ? 'Verify Calculations' : 'Calculate Results';
+function closeProjectModal() {
+    document.getElementById('projectModal').classList.add('hidden');
+}
+
+// --- FUNCTION: Save Project Details and Continue to Input View ---
+function saveProjectAndContinue() {
+    const name = document.getElementById('projectName').value;
+    const address = document.getElementById('propertyAddress').value;
+    const notes = document.getElementById('scanNotes').value;
+    
+    if (!name) {
+        alert("Please enter a Project Name to continue.");
+        return;
+    }
+    
+    // MOCK SAVING LOGIC: This captures the data you need
+    console.log(`[AfferioIQ] Project Created: ${name} at ${address}`);
+    currentProject = { name, address, notes, mode: currentUtilityMode };
+    
+    closeProjectModal();
+    
+    // Transition to the input view
+    showView('inputView'); 
+    
+    // Set the calculation button text based on the stored mode
+    document.getElementById('calculateBtn').textContent = 
+        currentUtilityMode === 'verify' ? 'Verify Calculations' : 'Calculate Results';
+}
+  // --- NEW FUNCTION: Starts the chosen utility mode by opening the project modal ---
+function startUtility(mode) {
+    currentUtilityMode = mode;
+    window.selectedSampleKey = mode; // For compatibility
+    
+    // Clear any previous inputs when starting a new utility flow
+    document.getElementById('projectName').value = ''; 
+    document.getElementById('propertyAddress').value = '';
+    document.getElementById('clientName').value = '';
+    document.getElementById('scanNotes').value = '';
+    
+    // RENDER THE FORM DATA FIRST (but don't show the view yet)
+    renderInputForm(mode); 
+
+    // Open the Project Modal to capture project details
+    openProjectModal(); 
+}
     }
 
     // --- NEW FUNCTION: Dynamically loads the input form based on mode ---
