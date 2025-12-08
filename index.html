@@ -1056,99 +1056,110 @@ function startUtility(mode) {
 
         let data = {};
         
-       // 1. MRR Calculation Mock (High quantifiable savings)
-        if (mode === 'mrr') {
-            const inputRPM = parseFloat(document.getElementById('inputRPM').value) || 8000;
-            const inputFeed = parseFloat(document.getElementById('inputFeed').value) || 100;
-            const inputADOC = parseFloat(document.getElementById('inputADOC').value) || 0.15;
-            // Assuming radial depth of cut is 25% of the tool diameter (0.5)
-            const radialDOC = 0.5 * 0.25; 
-            
-            // Calculations
-            const currentMRR = (inputFeed * radialDOC * inputADOC).toFixed(2); 
-            const schutteMRR = (currentMRR * 1.45).toFixed(2); // Simulating 45% gain
-            const efficiencyGain = (((schutteMRR - currentMRR) / currentMRR) * 100).toFixed(1);
-            const currentCycleTime = (1000 / currentMRR).toFixed(1);
-            const schutteCycleTime = (1000 / schutteMRR).toFixed(1);
-            const hpRequired = (parseFloat(schutteMRR) * 0.1).toFixed(1); // Rough estimate of HP needed
-            
-            data = {
-                type: 'MRR_RESULT',
-                title: 'MRR Performance Analysis',
-                recommendation: `High-value performance confirmed. Schutte spindle capability provides a ${efficiencyGain}% increase in MRR, translating directly to reduced cycle time and cost per part. Check HP requirements below.`,
-                metrics: {
-                    // NEW: Detailed Performance Metrics
-                    mr_rate_current: `${currentMRR} in³/min (Current)`,
-                    mr_rate_schutte: `${schutteMRR} in³/min (Schutte Optimal)`,
-                    hp_required: `${hpRequired} HP (Required at Peak MRR)`,
-                    // NEW: Cycle Time Comparison
-                    cycle_time_current: `${currentCycleTime} seconds/unit (Current)`,
-                    cycle_time_schutte: `${schutteCycleTime} seconds/unit (Schutte Optimal)`,
-                    // Original metrics structure (optional, but keep for compatibility)
-                    savings: `$12,000 Annual Savings (Placeholder)` 
-                }
-            };
-
-       // 2. Recommendation/Efficiency Mock (Consultative value)
-        } else if (mode === 'recommend') {
-            const rigidity = document.getElementById('inputRigidity').value;
-            const material = document.getElementById('inputMaterial').value;
-            const ra = parseFloat(document.getElementById('inputRa').value) || 32;
-
-            // Calculations
-            const stabilityFactor = rigidity === 'Low' ? 0.65 : 0.95;
-            const roughnessAchieved = (ra * stabilityFactor).toFixed(1);
-            const vibrationLevel = (100 - stabilityFactor * 100).toFixed(0);
-            const toolLifeAdj = (rigidity === 'Low' ? 'Reduced by 30%' : 'Optimized');
-
-            const advisoryMessage = rigidity === 'Low' 
-                ? "WARNING: Low rigidity detected. Reduce cutting forces immediately to prevent chatter and catastrophic tool failure. Surface finish targets are at risk." 
-                : "Setup is robust. Focus on maximizing cutting speed and optimizing coolant for best results. No stability issues detected.";
-
-            data = {
-                type: 'EFFICIENCY_RESULT',
-                title: 'Project Efficiency Advisor',
-                recommendation: advisoryMessage,
-                metrics: {
-                    // NEW: Detailed Efficiency Metrics
-                    material: material,
-                    fixture_rigidity: rigidity,
-                    achieved_surface_finish: `${roughnessAchieved} Ra (Predicted)`,
-                    vibration_risk: `${vibrationLevel}% (Stability)`,
-                    estimated_tool_life: toolLifeAdj,
-                }
-            };
-        // 3. Verification Mock (Safety value)
-        } else if (mode === 'verify') {
-            const feed = parseFloat(document.getElementById('inputVerifyFeed').value) || 150;
-            const rpm = parseFloat(document.getElementById('inputVerifyRPM').value) || 12000;
-            const strength = parseFloat(document.getElementById('inputStrength').value) || 1.8;
-
-            // Calculations
-            const torqueRequired = ((feed * strength * 0.1) / (rpm / 10000)).toFixed(1); // Simulating based on inputs
-            const spindleLoad = (torqueRequired * 1.5).toFixed(0);
-            const deflectionRisk = (feed / rpm * 100 * strength).toFixed(2);
-
-            const status = torqueRequired > 3.0 || deflectionRisk > 0.05 ? 'Warning' : 'Verified';
-            
-            const safetyMessage = status === 'Warning' ? 
-                "SAFETY WARNING: Calculated parameters exceed safe operational limits for torque or deflection. Potential for tool breakage is high." : 
-                "STATUS: All calculations verified. Parameters are within safe operational limits. Proceed with confidence.";
-
-            data = {
-                type: 'VERIFICATION_RESULT',
-                title: 'Calculation Verification Status',
-                recommendation: safetyMessage,
-                metrics: {
-                    // NEW: Detailed Verification Metrics
-                    calculated_torque: `${torqueRequired} ft-lb (Req.)`,
-                    spindle_load: `${spindleLoad}% (Projected Max)`,
-                    tool_deflection_risk: `${deflectionRisk} in (Micro-Deflection)`,
-                    safety: status,
-                }
-            };
-        return { success: true, data: data };
+       // --- NEW FUNCTION: Mock calculation logic for the demo ---
+async function executeCalculationMock(mode) {
+    console.log(`[Schutte P-Opt Sim] Executing calculation for mode: ${mode}`);
+    
+    // --- SIMULATED USAGE CHECK (Metered Logic retained) ---
+    if (mockCalculationsRemaining <= 0) { 
+        return { success: false, message: 'USAGE_CAP_REACHED' };
     }
+    mockCalculationsRemaining -= 1; 
+    
+    await new Promise(r => setTimeout(r, 1000));
+
+    let data = {};
+    
+    // 1. MRR Calculation Mock (High quantifiable savings)
+    if (mode === 'mrr') {
+        const inputRPM = parseFloat(document.getElementById('inputRPM').value) || 8000;
+        const inputFeed = parseFloat(document.getElementById('inputFeed').value) || 100;
+        const inputADOC = parseFloat(document.getElementById('inputADOC').value) || 0.15;
+        const radialDOC = 0.5 * 0.25; 
+        
+        // Calculations
+        const currentMRR = (inputFeed * radialDOC * inputADOC).toFixed(2); 
+        const schutteMRR = (currentMRR * 1.45).toFixed(2); // Simulating 45% gain
+        const efficiencyGain = (((schutteMRR - currentMRR) / currentMRR) * 100).toFixed(1);
+        const currentCycleTime = (1000 / currentMRR).toFixed(1);
+        const schutteCycleTime = (1000 / schutteMRR).toFixed(1);
+        const hpRequired = (parseFloat(schutteMRR) * 0.1).toFixed(1); 
+        
+        data = {
+            type: 'MRR_RESULT',
+            title: 'MRR Performance Analysis',
+            recommendation: `High-value performance confirmed. Schutte spindle capability provides a ${efficiencyGain}% increase in MRR, translating directly to reduced cycle time and cost per part. Check HP requirements below.`,
+            metrics: {
+                mr_rate_current: `${currentMRR} in³/min (Current)`,
+                mr_rate_schutte: `${schutteMRR} in³/min (Schutte Optimal)`,
+                hp_required: `${hpRequired} HP (Required at Peak MRR)`,
+                cycle_time_current: `${currentCycleTime} seconds/unit (Current)`,
+                cycle_time_schutte: `${schutteCycleTime} seconds/unit (Schutte Optimal)`,
+                savings: `$12,000 Annual Savings (Placeholder)` 
+            }
+        };
+
+    // 2. Recommendation/Efficiency Mock (Consultative value)
+    } else if (mode === 'recommend') {
+        const rigidity = document.getElementById('inputRigidity').value;
+        const material = document.getElementById('inputMaterial').value;
+        const ra = parseFloat(document.getElementById('inputRa').value) || 32;
+
+        // Calculations
+        const stabilityFactor = rigidity === 'Low' ? 0.65 : 0.95;
+        const roughnessAchieved = (ra * stabilityFactor).toFixed(1);
+        const vibrationLevel = (100 - stabilityFactor * 100).toFixed(0);
+        const toolLifeAdj = (rigidity === 'Low' ? 'Reduced by 30%' : 'Optimized');
+
+        const advisoryMessage = rigidity === 'Low' 
+            ? "WARNING: Low rigidity detected. Reduce cutting forces immediately to prevent chatter and catastrophic tool failure. Surface finish targets are at risk." 
+            : "Setup is robust. Focus on maximizing cutting speed and optimizing coolant for best results. No stability issues detected.";
+
+        data = {
+            type: 'EFFICIENCY_RESULT',
+            title: 'Project Efficiency Advisor',
+            recommendation: advisoryMessage,
+            metrics: {
+                material: material,
+                fixture_rigidity: rigidity,
+                achieved_surface_finish: `${roughnessAchieved} Ra (Predicted)`,
+                vibration_risk: `${vibrationLevel}% (Stability)`,
+                estimated_tool_life: toolLifeAdj,
+            }
+        };
+
+    // 3. Verification Mock (Safety value)
+    } else if (mode === 'verify') {
+        const feed = parseFloat(document.getElementById('inputVerifyFeed').value) || 150;
+        const rpm = parseFloat(document.getElementById('inputVerifyRPM').value) || 12000;
+        const strength = parseFloat(document.getElementById('inputStrength').value) || 1.8;
+
+        // Calculations
+        const torqueRequired = ((feed * strength * 0.1) / (rpm / 10000)).toFixed(1); 
+        const spindleLoad = (torqueRequired * 1.5).toFixed(0);
+        const deflectionRisk = (feed / rpm * 100 * strength).toFixed(2);
+
+        const status = torqueRequired > 3.0 || deflectionRisk > 0.05 ? 'Warning' : 'Verified';
+        
+        const safetyMessage = status === 'Warning' ? 
+            "SAFETY WARNING: Calculated parameters exceed safe operational limits for torque or deflection. Potential for tool breakage is high." : 
+            "STATUS: All calculations verified. Parameters are within safe operational limits. Proceed with confidence.";
+
+        data = {
+            type: 'VERIFICATION_RESULT',
+            title: 'Calculation Verification Status',
+            recommendation: safetyMessage,
+            metrics: {
+                calculated_torque: `${torqueRequired} ft-lb (Req.)`,
+                spindle_load: `${spindleLoad}% (Projected Max)`,
+                tool_deflection_risk: `${deflectionRisk} in (Micro-Deflection)`,
+                safety: status,
+            }
+        };
+    }
+
+    return { success: true, data: data };
+}
     
     // --- Restored Animation (Used for calculation time) ---
     function animateProgressBar() {
