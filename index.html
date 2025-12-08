@@ -813,18 +813,12 @@ textarea.form-input {
 
             <div class="results-summary">
                 <div class="summary-card confidence">
-                    <div class="summary-label">Confidence</div>
-                    <div class="summary-value" style="color: var(--primary);" id="confidenceValue">91%</div>
+                    <div class="summary-label">Project</div>                          <div class="summary-value" style="color: var(--primary);" id="confidenceValue"></div>
+                </div>
+                <div class="summary-card issues">
+                    <div class="summary-label">Utility Mode</div>                     <div class="summary-value" style="color: var(--danger);" id="issuesCount"></div>
+                </div>
                 </div>
-                <div class="summary-card issues">
-                    <div class="summary-label">Issues Found</div>
-                    <div class="summary-value" style="color: var(--danger);" id="issuesCount">1</div>
-                </div>
-                <div class="summary-card cost">
-                    <div class="summary-label">Value</div>
-                    <div class="summary-value" style="color: var(--warning); font-size: 1.75rem;" id="costValue">TBD</div>
-                </div>
-            </div>
 
             <div class="issues-container">
                 <div class="issues-header">
@@ -932,7 +926,7 @@ textarea.form-input {
     let currentProject = null;
     let currentLeadId = null;
     let currentExhId = null;
-    let mockScansRemaining = 25; // Define the starting cap for the demo
+    let mockCalculationsRemaining = 25; // Define the starting cap for the demo
     window.selectedSampleKey = null; 
     let currentUtilityMode = null; // NEW: Tracks 'mrr', 'recommend', or 'verify'
 
@@ -974,7 +968,12 @@ textarea.form-input {
         if (menuOverlay) menuOverlay.classList.remove('open');
     }
 
-    function showDashboardView() { showView('dashboardView'); }
+    function showDashboardView() { 
+        showView('dashboardView'); 
+        // Reset the calculation status when returning to the dashboard
+        document.getElementById('calculationStatus').classList.add('hidden');
+        document.getElementById('calculateBtn').disabled = false;
+    }
     function showProjectsView() { showView('projectsView'); } 
     function showSettingsView() { showView('settingsView'); } 
        function showProjectDetailView() { showView('projectDetailView'); }
@@ -1104,11 +1103,11 @@ function startUtility(mode) {
     async function executeCalculationMock(mode) {
         console.log(`[Schutte P-Opt Sim] Executing calculation for mode: ${mode}`);
         
-        // --- SIMULATED USAGE CHECK (Metered Logic retained) ---
-        if (mockScansRemaining <= 0) { 
-             return { success: false, message: 'USAGE_CAP_REACHED' };
-        }
-        mockScansRemaining -= 1; 
+       // --- SIMULATED USAGE CHECK (Metered Logic retained) ---
+        if (mockCalculationsRemaining <= 0) { 
+             return { success: false, message: 'USAGE_CAP_REACHED' };
+        }
+        mockCalculationsRemaining -= 1;
         
         await new Promise(r => setTimeout(r, 1000));
 
@@ -1215,15 +1214,10 @@ function startUtility(mode) {
         const resultImageEl = document.getElementById('resultImage');
         if (resultImageEl) resultImageEl.style.display = 'none'; 
         
-        // Confidence will now display the Project Name
-        document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calcs'; 
-        
-        // Issues Found can display the calculation type
-        document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; 
-
-        // Est. Value Card displays the primary metric
+        // New logic for card population
+        document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calc'; 
+        document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; // e.g., 'MRR' or 'Project'
         document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety;
-
         let html = `
             <div class="issue-item">
                 <div class="issue-header-row">
@@ -1237,9 +1231,11 @@ function startUtility(mode) {
             <h3 style="margin-top: 2rem;">Key Metrics:</h3>
         `;
 
-        for (const [key, value] of Object.entries(data.metrics)) {
-            html += `<p><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
-        }
+       for (const [key, value] of Object.entries(data.metrics)) {
+            // Skips the 'savings' key if it exists, as it's displayed in the main card
+            if (key === 'savings') continue; 
+            html += `<p><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
+        }
         
         document.getElementById('issuesList').innerHTML = html;
         window.scrollTo(0, 0);
