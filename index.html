@@ -747,57 +747,7 @@ textarea.form-input {
         </div>
     </div>
 </div>
-        <!-- Sample Selection -->
-        <div id="sampleView" class="hidden">
-            <button class="btn-secondary" onclick="showDashboard()">← Back</button>
-            <h2 style="margin: 2rem 0 1rem; font-size: 1.75rem;">Select Sample to Analyze</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Choose a structural issue to see AI detection in action</p>
-            
-            <div class="sample-grid">
-                <div class="sample-card" onclick="selectSample('water')">
-                    <img src='https://i.imgur.com/sVkNhey.jpg'w=400&h=300&fit=crop" class="sample-image" alt="Water Damage">
-                    <div class="sample-info">
-                        <div class="sample-title">Water Damage - Wall</div>
-                        <div class="sample-desc">Visible water staining with potential mold growth</div>
-                    </div>
-                </div>
-                <div class="sample-card" onclick="selectSample('crack')">
-                    <img src='https://i.imgur.com/AnkAyMC.jpg'w=400&h=300&fit=crop" class="sample-image" alt="Wall Crack">
-                    <div class="sample-info">
-                        <div class="sample-title">Structural Crack - Wall</div>
-                        <div class="sample-desc">Vertical crack indicating settlement issues</div>
-                    </div>
-                </div>
-                <div class="sample-card" onclick="selectSample('corrosion')">
-                    <img src='https://i.imgur.com/6jrvabV.jpg'w=400&h=300&fit=crop" class="sample-image" alt="Pipe Corrosion">
-                    <div class="sample-info">
-                        <div class="sample-title">Pipe Corrosion</div>
-                        <div class="sample-desc">Metal corrosion on exposed plumbing</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Camera/Analysis -->
-        <div id="cameraView" class="hidden">
-            <button class="btn-secondary" onclick="showSamples()">← Back</button>
-            
-            <div class="camera-view">
-                <img id="previewImage" class="camera-preview" alt="Preview">
-                <div class="camera-overlay" id="detectionOverlay"></div>
-                <div class="camera-controls">
-                    <button class="btn-primary" id="analyzeBtn" onclick="runAnalysis()">Analyze Image</button>
-                </div>
-            </div>
-
-            <div id="analysisStatus" class="analysis-status hidden">
-                <h3>AI Analysis in Progress</h3>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="status-text" id="statusText">Initializing detection algorithms...</div>
-            </div>
-        </div>
+      
 
         <!-- Results -->
         <div id="resultsView" class="hidden">
@@ -805,11 +755,6 @@ textarea.form-input {
             
             <h2 style="font-size: 2rem; margin: 2rem 0 0.5rem;">Analysis Complete</h2>
             <p style="color: var(--text-secondary); margin-bottom: 2rem;">Completed • <span id="timestamp"></span></p>
-
-            <div class="camera-view">
-                <img id="resultImage" class="camera-preview" alt="Result">
-                <div class="camera-overlay" id="resultOverlay"></div>
-            </div>
 
             <div class="results-summary" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
                 <div class="summary-card confidence">
@@ -823,15 +768,14 @@ textarea.form-input {
                 </div>
 
             <div class="issues-container">
-                <div class="issues-header">
-                    <h3>Detected Issues</h3>
-                </div>
-                <div id="issuesList"></div>
-            </div>
+                <div class="issues-header">
+                    <h3>Calculation Details</h3>                 </div>
+                <div id="issuesList"></div>
+            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem;">
-                <button class="btn-primary" onclick="exportPDF()">Export Full Report</button>
-                </div>
+           <div style="display: grid; grid-template-columns: 1fr; max-width: 400px; margin: 2rem auto;">
+    <button class="btn-primary" onclick="exportPDF()">Export Full Report</button>
+</div>
         </div>
 
         <!-- Projects View -->
@@ -1214,27 +1158,26 @@ function startUtility(mode) {
         
         document.getElementById('timestamp').textContent = scanDate.toLocaleString();
         
-        // 1. Populate Main Summary Cards (ONLY TWO CARDS NOW)
+        // 1. Populate Main Summary Cards
         document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calc'; 
-        document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; // e.g., 'MRR' or 'Project'
-        // document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety; // LINE DELETED
+        document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; 
 
         let html = `
-            <div class="issue-item">
+                        <div class="issue-item">
                 <div class="issue-header-row">
                     <div class="issue-title">${data.title}</div>
                     <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
                 </div>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    ${data.metrics.recommendation || data.metrics.message || 'Analysis Complete.'}
+                                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    ${data.metrics.recommendation || data.metrics.message || 'Calculation Complete.'}
                 </p>
             </div>
             <h3 style="margin-top: 2rem;">Key Metrics:</h3>
         `;
 
-        // 2. Populate Key Metrics (skipping 'savings' and making labels clean)
+        // 2. Populate Key Metrics (Skipping 'savings' and obsolete content)
         for (const [key, value] of Object.entries(data.metrics)) {
-            // CRITICAL FIX: Skip 'savings' key to remove redundancy
+            // Skips the 'savings' key to remove redundancy
             if (key === 'savings') continue; 
             html += `<p><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
         }
