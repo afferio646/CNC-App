@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StructureScan AI - Professional Demo</title>
+    <title>Schutte Precision Optimizer</title>
     <link rel="manifest" href="/manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -586,7 +586,7 @@ textarea.form-input {
 <body>
     <div id="sideMenu" class="side-menu">
         <div class="menu-header">
-            <h2>StructureScan AI</h2>
+           <h2>Schutte P-Opt</h2>
             <p>Menu</p>
         </div>
         <nav class="menu-nav">
@@ -606,7 +606,7 @@ textarea.form-input {
             </svg>
         </button>
         <div class="header-content">
-            <h1>StructureScan AI</h1>
+            <h1>Schutte P-Opt</h1>
         </div>
         <div style="width: 44px;"></div> <!-- Spacer -->
     </div>
@@ -849,7 +849,6 @@ textarea.form-input {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-   <script>
 // =======================================================
 // === GLOBAL VARIABLES & MOCK DATA (SCHUTTE P-OPT PWA) ===
 // =======================================================
@@ -865,7 +864,7 @@ textarea.form-input {
     const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE'; 
     const BACKEND_URL = 'YOUR_SECURE_BACKEND_URL'; 
 
-    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView'];
+    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView', 'sampleView', 'cameraView'];
 
     // =======================================================
     // === PWA CORE FUNCTIONS (VIEW & DATA MANAGEMENT) ===
@@ -971,22 +970,18 @@ textarea.form-input {
     // --- NEW FUNCTION: Primary calculation function called by the button ---
     async function runCalculation() {
         if (!currentLeadId) { 
-            // If tracking failed, use DEMO_MODE
             currentLeadId = 'DEMO_MODE'; 
         }
 
-        // 1. Show loading UI and disable button
         document.getElementById('calculateBtn').disabled = true;
         document.getElementById('calculationStatus').classList.remove('hidden');
 
-        // 2. Execute calculation based on mode (calls the mock logic)
         const analysisResult = await executeCalculationMock(currentUtilityMode); 
 
-        // 3. Handle Results
         if (analysisResult.success) {
-            currentSample = analysisResult.data; // Store results in the generic sample variable
+            currentSample = analysisResult.data; 
             await animateProgressBar(); 
-            showResults(); // Transition to the results view
+            showResults(); 
         } else {
             alert(`Calculation failed: ${analysisResult.message}`);
             document.getElementById('calculationStatus').classList.add('hidden');
@@ -1004,7 +999,6 @@ textarea.form-input {
         }
         mockScansRemaining -= 1; 
         
-        // Simulate network latency and calculation time
         await new Promise(r => setTimeout(r, 1000));
 
         let data = {};
@@ -1016,7 +1010,7 @@ textarea.form-input {
             const inputADOC = parseFloat(document.getElementById('inputADOC').value) || 0.15;
             
             const currentMRR = (inputFeed * 0.25 * inputADOC).toFixed(2); 
-            const schutteMRR = (currentMRR * 1.4).toFixed(2); // 40% improvement mock
+            const schutteMRR = (currentMRR * 1.4).toFixed(2); 
             const savings = (schutteMRR - currentMRR) * 60 * 8 * 250 * 0.05; 
 
             data = {
@@ -1101,7 +1095,6 @@ textarea.form-input {
 
     // --- Final function to display results in the resultsView ---
     function showResults() {
-        // Hide input view and show results view
         showView('resultsView'); 
         
         const data = currentSample;
@@ -1109,13 +1102,12 @@ textarea.form-input {
         
         document.getElementById('timestamp').textContent = scanDate.toLocaleString();
         const resultImageEl = document.getElementById('resultImage');
-        if (resultImageEl) resultImageEl.style.display = 'none'; // No image in this version
+        if (resultImageEl) resultImageEl.style.display = 'none'; 
         
         document.getElementById('confidenceValue').textContent = data.type; 
         document.getElementById('issuesCount').textContent = mockScansRemaining; 
         document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety; 
 
-        // Dynamic result display
         let html = `
             <div class="issue-item">
                 <div class="issue-header-row">
@@ -1182,3 +1174,4 @@ textarea.form-input {
 </script>
 </body>
 </html>
+  
