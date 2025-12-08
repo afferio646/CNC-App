@@ -696,7 +696,7 @@ textarea.form-input {
         <div id="dashboardView">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Total Scans</div>
+                    <div class="stat-label">Total Calculations</div>
                     <div class="stat-value">47</div>
                     <div class="stat-trend">↑ 12% this month</div>
                 </div>
@@ -704,11 +704,6 @@ textarea.form-input {
                     <div class="stat-label">Issues Detected</div>
                     <div class="stat-value">12</div>
                     <div class="stat-trend">3 high priority</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Est. Savings</div>
-                    <div class="stat-value">$8.4K</div>
-                    <div class="stat-trend">Early detection value</div>
                 </div>
             </div>
 
@@ -806,10 +801,10 @@ textarea.form-input {
 
         <!-- Results -->
         <div id="resultsView" class="hidden">
-            <button class="btn-secondary" onclick="showDashboard()">← Start New Scan</button>
+            <button class="btn-secondary" onclick="showDashboard()">← Start New Calculation</button>
             
             <h2 style="font-size: 2rem; margin: 2rem 0 0.5rem;">Analysis Complete</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Scan completed • <span id="timestamp"></span></p>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Completed • <span id="timestamp"></span></p>
 
             <div class="camera-view">
                 <img id="resultImage" class="camera-preview" alt="Result">
@@ -818,7 +813,7 @@ textarea.form-input {
 
             <div class="results-summary">
                 <div class="summary-card confidence">
-                    <div class="summary-label">AI Confidence</div>
+                    <div class="summary-label">Confidence</div>
                     <div class="summary-value" style="color: var(--primary);" id="confidenceValue">91%</div>
                 </div>
                 <div class="summary-card issues">
@@ -826,8 +821,8 @@ textarea.form-input {
                     <div class="summary-value" style="color: var(--danger);" id="issuesCount">1</div>
                 </div>
                 <div class="summary-card cost">
-                    <div class="summary-label">Est. Repair Cost</div>
-                    <div class="summary-value" style="color: var(--warning); font-size: 1.75rem;" id="costValue">$2.4K-3.8K</div>
+                    <div class="summary-label">Value</div>
+                    <div class="summary-value" style="color: var(--warning); font-size: 1.75rem;" id="costValue">TBD</div>
                 </div>
             </div>
 
@@ -840,8 +835,7 @@ textarea.form-input {
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem;">
                 <button class="btn-primary" onclick="exportPDF()">Export Full Report</button>
-                <button class="btn-primary">Schedule Repairs</button>
-            </div>
+                </div>
         </div>
 
         <!-- Projects View -->
@@ -849,11 +843,11 @@ textarea.form-input {
             <h2 style="font-size: 2rem; margin-bottom: 1rem;">Projects</h2>
             <div id="projectList" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                  <!-- Projects will be dynamically inserted here -->
-                <div class="stat-card" style="cursor: pointer;" onclick="alert('Navigate to project details')">
-                    <div class="stat-label">123 Main Street</div>
-                    <div class="stat-value" style="font-size: 1.5rem;">3 Scans</div>
-                    <div class="stat-trend">Last scan: 11/08/2025</div>
-                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
+                    <div class="stat-label">123 Main Street</div>
+                    <div class="stat-value" style="font-size: 1.5rem;">3 Scans</div>
+                    <div class="stat-trend">Last scan: 11/08/2025</div>
+                </div>
                  <div class="stat-card" style="cursor: pointer;" onclick="alert('Navigate to project details')">
                     <div class="stat-label">Downtown Pipe Inspection</div>
                     <div class="stat-value" style="font-size: 1.5rem;">1 Scan</div>
@@ -871,7 +865,7 @@ textarea.form-input {
             <h2 style="font-size: 2rem; margin-bottom: 2rem;">Settings</h2>
             <div class="form-group">
                 <label>Company Name</label>
-                <input type="text" id="companyName" placeholder="e.g., Restoration Experts Inc" class="form-input">
+                <input type="text" id="companyName" placeholder="e.g., Schutte Precision Optimizer" class="form-input">
             </div>
             <div class="form-group">
                 <label>Company Address</label>
@@ -983,6 +977,7 @@ textarea.form-input {
     function showDashboardView() { showView('dashboardView'); }
     function showProjectsView() { showView('projectsView'); } 
     function showSettingsView() { showView('settingsView'); } 
+       function showProjectDetailView() { showView('projectDetailView'); }
     
     // --- Project/Settings Management Stubs ---
     function getProjects() { return JSON.parse(localStorage.getItem('struc_projects') || '[]'); }
@@ -1220,9 +1215,14 @@ function startUtility(mode) {
         const resultImageEl = document.getElementById('resultImage');
         if (resultImageEl) resultImageEl.style.display = 'none'; 
         
-        document.getElementById('confidenceValue').textContent = data.type; 
-        document.getElementById('issuesCount').textContent = mockScansRemaining; 
-        document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety; 
+        // Confidence will now display the Project Name
+        document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calcs'; 
+        
+        // Issues Found can display the calculation type
+        document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; 
+
+        // Est. Value Card displays the primary metric
+        document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety;
 
         let html = `
             <div class="issue-item">
