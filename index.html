@@ -549,6 +549,38 @@ textarea.form-input {
         @media (max-width: 768px) {
             .stats-grid, .sample-grid, .results-summary { grid-template-columns: 1fr; }
         }
+        /* --- NEW STYLES FOR UTILITY HUB GRID --- */
+.utility-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.utility-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center; /* Center the content */
+}
+
+.utility-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.utility-card h2 {
+    color: var(--primary-light); 
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.utility-card p {
+    color: var(--text-secondary);
+}
     </style>
 </head>
 <body>
@@ -600,19 +632,45 @@ textarea.form-input {
                 </div>
             </div>
 
-            <div class="action-card" onclick="openProjectModal()">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 20px; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 40px; height: 40px; stroke: white; stroke-width: 2; fill: none;" viewBox="0 0 24 24">
-                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                        <circle cx="12" cy="13" r="4"></circle>
-                    </svg>
-                </div>
-                <h2>Start Structural Analysis</h2>
-                <p>Capture images to detect structural issues, water damage, and estimate repair costs using AI-powered analysis.</p>
-                <button class="btn-primary" style="margin-top: 1.5rem;">Begin Scan</button>
-            </div>
+       <div class="utility-selection-grid">
+    
+    <div class="utility-card" onclick="startUtility('mrr')">
+        <h2>1. MRR Performance Calculator</h2>
+        <p>Compare Schutte spindle capabilities for quantifiable output gains.</p>
+    </div>
+    
+    <div class="utility-card" onclick="startUtility('recommend')">
+        <h2>2. Project Efficiency Advisor</h2>
+        <p>Get instant recommendations for optimal setup to maximize uptime.</p>
+    </div>
+    
+    <div class="utility-card" onclick="startUtility('verify')">
+        <h2>3. Calculation Verification</h2>
+        <p>Verify critical feeds/speeds to prevent costly tool breakage and job failures.</p>
+    </div>
+    
+</div>
+<div id="inputView" class="hidden">
+    <div class="content-header">
+        <button onclick="showDashboardView()" class="back-btn">← Back to Menu</button>
+        <h1>Utility Input</h1>
+    </div>
+    
+    <div class="main-content">
+        <div id="utilityFormContainer" class="card">
+            <p>Loading form...</p>
         </div>
-
+        
+        <button class="btn-primary large-btn" id="calculateBtn" onclick="runCalculation()">Calculate Results</button>
+        
+        <div id="calculationStatus" class="status-card hidden">
+            <div class="progress-bar-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <p id="statusText">Executing calculation...</p>
+        </div>
+    </div>
+</div>
         <!-- Sample Selection -->
         <div id="sampleView" class="hidden">
             <button class="btn-secondary" onclick="showDashboard()">← Back</button>
