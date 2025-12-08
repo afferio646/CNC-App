@@ -750,55 +750,54 @@ textarea.form-input {
       
 
         <!-- Results -->
-        <div id="resultsView" class="hidden">
-            <button class="btn-secondary" onclick="showDashboard()">← Start New Calculation</button>
-            
-            <h2 style="font-size: 2rem; margin: 2rem 0 0.5rem;">Analysis Complete</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Completed • <span id="timestamp"></span></p>
+     <div id="resultsView" class="hidden">
+    <button class="btn-secondary" onclick="showDashboardView()">← Start New Calculation</button>
+    
+    <h2 style="font-size: 2rem; margin: 2rem 0 0.5rem;">Calculation Results</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Completed • <span id="timestamp"></span></p>
 
-            <div class="results-summary" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                <div class="summary-card confidence">
-                    <div class="summary-label">PROJECT</div>
-                    <div class="summary-value" style="color: var(--primary);" id="confidenceValue"></div>
-                </div>
-                <div class="summary-card issues">
-                    <div class="summary-label">UTILITY MODE</div>
-                    <div class="summary-value" style="color: var(--danger);" id="issuesCount"></div>
-                </div>                       
-                </div>
-
-            <div class="issues-container">
-                <div class="issues-header">
-                    <h3>Calculation Details</h3>                 </div>
-                <div id="issuesList"></div>
-            </div>
-
-           <div style="display: grid; grid-template-columns: 1fr; max-width: 400px; margin: 2rem auto;">
-    <button class="btn-primary" onclick="exportPDF()">Export Full Report</button>
-</div>
+    <div class="results-summary" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+        <div class="summary-card confidence">
+            <div class="summary-label">PROJECT NAME</div>
+            <div class="summary-value" style="color: var(--primary);" id="confidenceValue"></div>
         </div>
+        <div class="summary-card issues">
+            <div class="summary-label">UTILITY MODE</div>
+            <div class="summary-value" style="color: var(--danger);" id="issuesCount"></div>
+        </div>
+        </div>
+    
+    <div class="issues-container">
+        <div class="issues-header">
+            <h3>Calculation Details</h3>
+        </div>
+        <div id="issuesList"></div>
+    </div>
 
+    <div style="display: grid; grid-template-columns: 1fr; max-width: 400px; margin: 2rem auto;">
+        <button class="btn-primary" onclick="exportPDF()">Export Full Report</button>
+    </div>
+    
+</div>
         <!-- Projects View -->
         <div id="projectsView" class="hidden">
             <h2 style="font-size: 2rem; margin-bottom: 1rem;">Projects</h2>
-            <div id="projectList" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-                 <!-- Projects will be dynamically inserted here -->
-                <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
-                    <div class="stat-label">123 Main Street</div>
-                    <div class="stat-value" style="font-size: 1.5rem;">3 Scans</div>
-                    <div class="stat-trend">Last scan: 11/08/2025</div>
-                </div>
-                 <div class="stat-card" style="cursor: pointer;" onclick="alert('Navigate to project details')">
-                    <div class="stat-label">Downtown Pipe Inspection</div>
-                    <div class="stat-value" style="font-size: 1.5rem;">1 Scan</div>
-                    <div class="stat-trend">Last scan: 11/05/2025</div>
-                </div>
-                <div class="action-card" onclick="openProjectModal()">
-                     <h3 style="margin-bottom: 1rem;">Create New Project</h3>
-                    <p>Start a new scan and save it as a new project.</p>
-                </div>
-            </div>
-        </div>
+           <div id="projectList" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                         <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
+                <div class="stat-label">Aerospace Titanium Job</div>
+                <div class="stat-value" style="font-size: 1.5rem;">3 Calcs</div>
+                <div class="stat-trend">Last calc: 11/08/2025</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="showProjectDetailView()">
+                <div class="stat-label">High-Speed Aluminum Part</div>
+                <div class="stat-value" style="font-size: 1.5rem;">1 Calc</div>
+                <div class="stat-trend">Last calc: 11/05/2025</div>
+            </div>
+            <div class="action-card" onclick="openProjectModal()">
+                 <h3 style="margin-bottom: 1rem;">Create New Project</h3>
+                <p>Start a new calculation and save it as a new project.</p>
+            </div>
+        </div>
 
         <!-- Settings View -->
         <div id="settingsView" class="hidden">
@@ -1163,13 +1162,13 @@ function startUtility(mode) {
         document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; 
 
         let html = `
-                        <div class="issue-item">
+            <div class="issue-item">
                 <div class="issue-header-row">
                     <div class="issue-title">${data.title}</div>
                     <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
                 </div>
-                                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    ${data.metrics.recommendation || data.metrics.message || 'Calculation Complete.'}
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    ${data.metrics.recommendation || data.metrics.message || 'Analysis Complete.'}
                 </p>
             </div>
             <h3 style="margin-top: 2rem;">Key Metrics:</h3>
