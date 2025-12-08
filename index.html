@@ -1161,26 +1161,25 @@ function startUtility(mode) {
 
         // Start generating the content for the 'Calculation Details' box
         let html = `
-            <div class="issue-item">
-                                <div class="issue-header-row">
-                    <div class="issue-title">${data.title}</div>
-                    <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
-                </div>
-                
-                                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        <div style="padding: 1.5rem 1.5rem 0.5rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; flex-direction: column;">
+                    <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem;">${data.title}</div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
                     ${data.metrics.recommendation || data.metrics.message || 'Calculation Complete. See Key Metrics below.'}
-                </p>
+                    </p>
+                </div>
+                <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
             </div>
-            <div style="border-top: 1px solid var(--border); margin: 0 1.5rem;"></div> 
+            
+                        <h3 style="margin-top: 1.5rem; padding: 0 1.5rem;">Key Metrics:</h3>
 
-            <h3 style="margin-top: 1.5rem; padding: 0 1.5rem;">Key Metrics:</h3>
-            <div style="padding: 0 1.5rem 1.5rem;">
+            <div style="padding: 0 1.5rem 1.5rem; line-height: 1.8;">
         `;
 
         // 2. Populate Key Metrics list
         for (const [key, value] of Object.entries(data.metrics)) {
-            // Skips the 'savings' key (irrelevant finance)
-            if (key === 'savings') continue; 
+            // Skips the 'savings' key
+            if (key === 'savings' || key === 'recommendation' || key === 'message') continue; 
             html += `<p style="margin-bottom: 0.25rem;"><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
         }
         
