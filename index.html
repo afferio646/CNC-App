@@ -811,13 +811,15 @@ textarea.form-input {
                 <div class="camera-overlay" id="resultOverlay"></div>
             </div>
 
-            <div class="results-summary">
-                <div class="summary-card confidence">
-                    <div class="summary-label">Project</div>                          <div class="summary-value" style="color: var(--primary);" id="confidenceValue"></div>
+            <div class="results-summary" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div class="summary-card confidence">
+                    <div class="summary-label">PROJECT</div>
+                    <div class="summary-value" style="color: var(--primary);" id="confidenceValue"></div>
                 </div>
                 <div class="summary-card issues">
-                    <div class="summary-label">Utility Mode</div>                     <div class="summary-value" style="color: var(--danger);" id="issuesCount"></div>
-                </div>
+                    <div class="summary-label">UTILITY MODE</div>
+                    <div class="summary-value" style="color: var(--danger);" id="issuesCount"></div>
+                </div>                       
                 </div>
 
             <div class="issues-container">
@@ -1203,44 +1205,43 @@ function startUtility(mode) {
         });
     }
 
-    // --- Final function to display results in the resultsView ---
-    function showResults() {
-        showView('resultsView'); 
-        
-        const data = currentSample;
-        const scanDate = new Date();
-        
-        document.getElementById('timestamp').textContent = scanDate.toLocaleString();
-        const resultImageEl = document.getElementById('resultImage');
-        if (resultImageEl) resultImageEl.style.display = 'none'; 
-        
-        // New logic for card population
+// --- Final function to display results in the resultsView ---
+    function showResults() {
+        showView('resultsView'); 
+        
+        const data = currentSample;
+        const scanDate = new Date();
+        
+        document.getElementById('timestamp').textContent = scanDate.toLocaleString();
+        
+        // 1. Populate Main Summary Cards (ONLY TWO CARDS NOW)
         document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calc'; 
         document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; // e.g., 'MRR' or 'Project'
-        document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety;
-        let html = `
-            <div class="issue-item">
-                <div class="issue-header-row">
-                    <div class="issue-title">${data.title}</div>
-                    <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
-                </div>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    ${data.metrics.recommendation || data.metrics.message || 'Analysis Complete.'}
-                </p>
-            </div>
-            <h3 style="margin-top: 2rem;">Key Metrics:</h3>
-        `;
+        // document.getElementById('costValue').textContent = data.metrics.savings || data.metrics.score || data.metrics.safety; // LINE DELETED
 
-       for (const [key, value] of Object.entries(data.metrics)) {
-            // Skips the 'savings' key if it exists, as it's displayed in the main card
+        let html = `
+            <div class="issue-item">
+                <div class="issue-header-row">
+                    <div class="issue-title">${data.title}</div>
+                    <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    ${data.metrics.recommendation || data.metrics.message || 'Analysis Complete.'}
+                </p>
+            </div>
+            <h3 style="margin-top: 2rem;">Key Metrics:</h3>
+        `;
+
+        // 2. Populate Key Metrics (skipping 'savings' and making labels clean)
+        for (const [key, value] of Object.entries(data.metrics)) {
+            // CRITICAL FIX: Skip 'savings' key to remove redundancy
             if (key === 'savings') continue; 
             html += `<p><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
         }
-        
-        document.getElementById('issuesList').innerHTML = html;
-        window.scrollTo(0, 0);
-    }
-
+        
+        document.getElementById('issuesList').innerHTML = html;
+        window.scrollTo(0, 0);
+    }
 
     // --- CORE FUNCTION: Initializes Tracking ---
     function initializeLeadTracking() {
