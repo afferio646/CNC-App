@@ -709,17 +709,17 @@ textarea.form-input {
 
        <div class="utility-selection-grid">
     
-    <div class="utility-card" onclick="startUtility('mrr')">
+    <div class="utility-card" onclick="openUtilityModal('mrr')">
         <h2>1. MRR Performance Calculator</h2>
         <p>Compare Schutte spindle capabilities for quantifiable output gains.</p>
     </div>
     
-    <div class="utility-card" onclick="startUtility('recommend')">
+    <div class="utility-card" onclick="openUtilityModal('recommend')">
         <h2>2. Project Efficiency Advisor</h2>
         <p>Get instant recommendations for optimal setup to maximize uptime.</p>
     </div>
     
-    <div class="utility-card" onclick="startUtility('verify')">
+    <div class="utility-card" onclick="openUtilityModal('verify')">
         <h2>3. Calculation Verification</h2>
         <p>Verify critical feeds/speeds to prevent costly tool breakage and job failures.</p>
     </div>
@@ -904,8 +904,8 @@ function closeProjectModal() {
     document.getElementById('projectModal').classList.add('hidden');
 }
 
-// --- FUNCTION: Starts the chosen utility mode (Called by the cards) ---
-function startUtility(mode) {
+// --- NEW FUNCTION: Called by the cards, combines mode setting and modal opening ---
+function openUtilityModal(mode) {
     currentUtilityMode = mode;
     window.selectedSampleKey = mode; // For compatibility
      
@@ -914,76 +914,8 @@ function startUtility(mode) {
     document.getElementById('propertyAddress').value = '';
     document.getElementById('clientName').value = '';
     document.getElementById('scanNotes').value = '';
-     
+    
     // RENDER THE FORM DATA FIRST 
-    renderInputForm(mode); 
-
-    // Open the Project Modal to capture project details
-    openProjectModal(); 
-}
-
-// --- NEW FUNCTION: Primary calculation function called by the button ---
-async function runCalculation() {
-    if (!currentLeadId) {  
-        currentLeadId = 'DEMO_MODE';  
-    }
-
-    document.getElementById('calculateBtn').disabled = true;
-    document.getElementById('calculationStatus').classList.remove('hidden');
-
-    const analysisResult = await executeCalculationMock(currentUtilityMode);  
-
-    if (analysisResult.success) {
-        currentSample = analysisResult.data;  
-        await animateProgressBar();  
-        showResults();  
-    } else {
-        alert(`Calculation failed: ${analysisResult.message}`);
-        document.getElementById('calculationStatus').classList.add('hidden');
-        document.getElementById('calculateBtn').disabled = false;
-    }
-}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-
-// =======================================================
-// === CRITICAL FIX: Explicitly define globally called functions first ===
-// =======================================================
-
-function toggleMenu() {
-    document.getElementById('sideMenu').classList.toggle('open');
-    document.getElementById('menuOverlay').classList.toggle('open');
-}
-
-function showDashboardView() { 
-    showView('dashboardView'); 
-    // CRITICAL: Reset the calculation status when returning to the dashboard
-    const calcStatus = document.getElementById('calculationStatus');
-    if (calcStatus) calcStatus.classList.add('hidden');
-     
-    const calcBtn = document.getElementById('calculateBtn');
-    if (calcBtn) calcBtn.disabled = false;
-}
-
-function showProjectsView() { showView('projectsView'); } 
-function showSettingsView() { showView('settingsView'); } 
-function showProjectDetailView() { showView('projectDetailView'); }
-
-function openProjectModal() {
-    document.getElementById('projectModal').classList.remove('hidden');
-}
-
-function closeProjectModal() {
-    document.getElementById('projectModal').classList.add('hidden');
-}
-
-// --- NEW FUNCTION: Called by the cards, combines mode setting and modal opening ---
-function openUtilityModal(mode) {
-    currentUtilityMode = mode;
-    window.selectedSampleKey = mode; // For compatibility
-     
-    // RENDER THE FORM DATA FIRST
     renderInputForm(mode); 
 
     // Open the Project Modal
@@ -1352,6 +1284,6 @@ async function runCalculation() {
         }
         loadSettings(); 
     });
-</script>
+    </script>
 </body>
 </html>
