@@ -869,30 +869,12 @@ textarea.form-input {
         </div>
     </div>
 </div>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 
 // =======================================================
-// === GLOBAL VARIABLES & MOCK DATA (SCHUTTE P-OPT PWA) ===
-// =======================================================
-    // --- Global Tracking Variables ---
-    let currentSample = null;
-    let currentProject = null;
-    let currentLeadId = null;
-    let currentExhId = null;
-    let mockCalculationsRemaining = 25; // Define the starting cap for the demo
-    window.selectedSampleKey = null;    
-    let currentUtilityMode = null; // Tracks 'mrr', 'recommend', or 'verify'
-
-    const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE';  
-    const BACKEND_URL = 'YOUR_SECURE_BACKEND_URL';  
-
-    // Removed sampleView and cameraView from array as they were deleted from HTML
-    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView']; 
-
-// =======================================================
-// === CRITICAL FIX: Explicitly define globally called functions for onclick handlers ===
+// === CRITICAL FIX: Explicitly define globally called functions first ===
 // =======================================================
 
 function toggleMenu() {
@@ -910,7 +892,19 @@ function showDashboardView() { 
     if (calcBtn) calcBtn.disabled = false;
 }
 
-// --- FUNCTION: Starts the chosen utility mode by opening the project modal ---
+function showProjectsView() { showView('projectsView'); } 
+function showSettingsView() { showView('settingsView'); } 
+function showProjectDetailView() { showView('projectDetailView'); }
+
+function openProjectModal() {
+    document.getElementById('projectModal').classList.remove('hidden');
+}
+
+function closeProjectModal() {
+    document.getElementById('projectModal').classList.add('hidden');
+}
+
+// --- FUNCTION: Starts the chosen utility mode (Called by the cards) ---
 function startUtility(mode) {
     currentUtilityMode = mode;
     window.selectedSampleKey = mode; // For compatibility
@@ -921,7 +915,81 @@ function startUtility(mode) {
     document.getElementById('clientName').value = '';
     document.getElementById('scanNotes').value = '';
      
-    // RENDER THE FORM DATA FIRST (but don't show the view yet)
+    // RENDER THE FORM DATA FIRST 
+    renderInputForm(mode); 
+
+    // Open the Project Modal to capture project details
+    openProjectModal(); 
+}
+
+// --- NEW FUNCTION: Primary calculation function called by the button ---
+async function runCalculation() {
+    if (!currentLeadId) {  
+        currentLeadId = 'DEMO_MODE';  
+    }
+
+    document.getElementById('calculateBtn').disabled = true;
+    document.getElementById('calculationStatus').classList.remove('hidden');
+
+    const analysisResult = await executeCalculationMock(currentUtilityMode);  
+
+    if (analysisResult.success) {
+        currentSample = analysisResult.data;  
+        await animateProgressBar();  
+        showResults();  
+    } else {
+        alert(`Calculation failed: ${analysisResult.message}`);
+        document.getElementById('calculationStatus').classList.add('hidden');
+        document.getElementById('calculateBtn').disabled = false;
+    }
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+
+// =======================================================
+// === CRITICAL FIX: Explicitly define globally called functions first ===
+// =======================================================
+
+function toggleMenu() {
+    document.getElementById('sideMenu').classList.toggle('open');
+    document.getElementById('menuOverlay').classList.toggle('open');
+}
+
+function showDashboardView() { 
+    showView('dashboardView'); 
+    // CRITICAL: Reset the calculation status when returning to the dashboard
+    const calcStatus = document.getElementById('calculationStatus');
+    if (calcStatus) calcStatus.classList.add('hidden');
+     
+    const calcBtn = document.getElementById('calculateBtn');
+    if (calcBtn) calcBtn.disabled = false;
+}
+
+function showProjectsView() { showView('projectsView'); } 
+function showSettingsView() { showView('settingsView'); } 
+function showProjectDetailView() { showView('projectDetailView'); }
+
+function openProjectModal() {
+    document.getElementById('projectModal').classList.remove('hidden');
+}
+
+function closeProjectModal() {
+    document.getElementById('projectModal').classList.add('hidden');
+}
+
+// --- FUNCTION: Starts the chosen utility mode (Called by the cards) ---
+function startUtility(mode) {
+    currentUtilityMode = mode;
+    window.selectedSampleKey = mode; // For compatibility
+     
+    // Clear any previous inputs when starting a new utility flow
+    document.getElementById('projectName').value = ''; 
+    document.getElementById('propertyAddress').value = '';
+    document.getElementById('clientName').value = '';
+    document.getElementById('scanNotes').value = '';
+     
+    // RENDER THE FORM DATA FIRST 
     renderInputForm(mode); 
 
     // Open the Project Modal to capture project details
@@ -952,8 +1020,23 @@ async function runCalculation() {
 
 
 // =======================================================
-// === PWA CORE FUNCTIONS (VIEW & DATA MANAGEMENT) ===
+// === GLOBAL VARIABLES & CORE PWA FUNCTIONS (SCHUTTE P-OPT PWA) ===
 // =======================================================
+    // --- Global Tracking Variables ---
+    let currentSample = null;
+    let currentProject = null;
+    let currentLeadId = null;
+    let currentExhId = null;
+    let mockCalculationsRemaining = 25; // Define the starting cap for the demo
+    window.selectedSampleKey = null;    
+    let currentUtilityMode = null; // Tracks 'mrr', 'recommend', or 'verify'
+
+    const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE';  
+    const BACKEND_URL = 'YOUR_SECURE_BACKEND_URL';  
+
+    // Removed sampleView and cameraView from array as they were deleted from HTML
+    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView']; 
+
 
     // Utility Function to get URL Parameters
     function getUrlParameter(name) {
@@ -963,7 +1046,7 @@ async function runCalculation() {
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
     
-    // --- View Management Functions ---
+    // --- View Management Function ---
     function showView(viewId) {
         allViews.forEach(id => {
             const el = document.getElementById(id);
@@ -976,13 +1059,8 @@ async function runCalculation() {
         const sideMenu = document.getElementById('sideMenu');
         const menuOverlay = document.getElementById('menuOverlay');
         if (sideMenu) sideMenu.classList.remove('open');
-        if (menuOverlay) menuOverlay.classList.remove('open'); // Corrected typo (was menuMenuOverlay)
+        if (menuOverlay) menuOverlay.classList.remove('open'); 
     }
-
-    
-    function showProjectsView() { showView('projectsView'); } 
-    function showSettingsView() { showView('settingsView'); } 
-    function showProjectDetailView() { showView('projectDetailView'); } 
 
     
     // --- Project/Settings Management Stubs ---
@@ -995,14 +1073,346 @@ async function runCalculation() {
     // === SCHUTTE P-OPT UTILITY HUB LOGIC ===
     // =======================================================
 
-    // --- Modal Control Functions ---
-    function openProjectModal() {
-        document.getElementById('projectModal').classList.remove('hidden');
+    // --- FUNCTION: Save Project Details and Continue to Input View ---
+    function saveProjectAndContinue() {
+        const name = document.getElementById('projectName').value;
+        const address = document.getElementById('propertyAddress').value;
+        const notes = document.getElementById('scanNotes').value;
+        
+        if (!name) {
+            alert("Please enter a Project Name to continue.");
+            return;
+        }
+        
+        // MOCK SAVING LOGIC: This captures the data you need
+        console.log(`[AfferioIQ] Project Created: ${name} at ${address}`);
+        currentProject = { name, address, notes, mode: currentUtilityMode };
+        
+        closeProjectModal();
+        
+        // Transition to the input view
+        showView('inputView'); 
+        
+        // Set the calculation button text based on the stored mode
+        document.getElementById('calculateBtn').textContent = 
+            currentUtilityMode === 'verify' ? 'Verify Calculations' : 'Calculate Results';
     }
 
-    function closeProjectModal() {
-        document.getElementById('projectModal').classList.add('hidden');
+
+    // --- NEW FUNCTION: Dynamically loads the input form based on mode ---
+    function renderInputForm(mode) {
+        const formContainer = document.getElementById('utilityFormContainer');
+        let html = '';
+        
+        if (mode === 'mrr') {
+            html = `
+                <h3 class="util-title">1. MRR Performance Calculator</h3>
+                <p class="util-desc">Compare your current output vs. the achievable rate with Schutte technology.</p>
+                <div class="input-group"><label>Tool Diameter (in)</label><input type="number" id="inputToolDia" value="0.5"></div>
+                <div class="input-group"><label>Current Spindle RPM</label><input type="number" id="inputRPM" value="8000"></div>
+                <div class="input-group"><label>Axial Depth of Cut (in)</label><input type="number" id="inputADOC" value="0.15"></div>
+                <div class="input-group"><label>Feed Rate (IPM)</label><input type="number" id="inputFeed" value="100"></div>
+            `;
+        } else if (mode === 'recommend') {
+            html = `
+                <h3 class="util-title">2. Project Efficiency Advisor</h3>
+                <p class="util-desc">Analyze your constraints to maximize uptime and reduce chatter.</p>
+                <div class="input-group"><label>Material</label>
+                    <select id="inputMaterial" class="input-select"><option>Titanium G5</option><option>Alloy 6061</option><option>Stainless Steel</option></select>
+                </div>
+                <div class="input-group"><label>Fixture Rigidity</label>
+                    <select id="inputRigidity" class="input-select"><option value="High">High (Welded)</option><option value="Medium">Medium (Clamped)</option><option value="Low">Low (Temporary)</option></select>
+                </div>
+                <div class="input-group"><label>Target Surface Finish (Ra)</label><input type="number" id="inputRa" value="32"></div>
+            `;
+        } else if (mode === 'verify') {
+            html = `
+                <h3 class="util-title">3. Calculation Verification</h3>
+                <p class="util-desc">Verify critical feeds and speeds to ensure machine safety and optimal torque limits.</p>
+                <div class="input-group"><label>Calculated Feed Rate (IPM)</label><input type="number" id="inputVerifyFeed" value="150"></div>
+                <div class="input-group"><label>Target Spindle Speed (RPM)</label><input type="number" id="inputVerifyRPM" value="12000"></div>
+                <div class="input-group"><label>Material Strength Factor</label><input type="number" id="inputStrength" value="1.8"></div>
+            `;
+        }
+        
+        formContainer.innerHTML = html;
     }
+
+    
+    // --- NEW FUNCTION: Mock calculation logic for the demo (ROBUST OUTPUT) ---
+    async function executeCalculationMock(mode) {
+        console.log(`[Schutte P-Opt Sim] Executing calculation for mode: ${mode}`);
+        
+        // --- SIMULATED USAGE CHECK (Metered Logic retained) ---
+        if (mockCalculationsRemaining <= 0) { 
+            return { success: false, message: 'USAGE_CAP_REACHED' };
+        }
+        mockCalculationsRemaining -= 1; 
+        
+        await new Promise(r => setTimeout(r, 1000));
+
+        let data = {};
+        
+        // 1. MRR Calculation Mock (High quantifiable savings)
+        if (mode === 'mrr') {
+            const inputRPM = parseFloat(document.getElementById('inputRPM').value) || 8000;
+            const inputFeed = parseFloat(document.getElementById('inputFeed').value) || 100;
+            const inputADOC = parseFloat(document.getElementById('inputADOC').value) || 0.15;
+            const radialDOC = 0.5 * 0.25; 
+            
+            // Calculations
+            const currentMRR = (inputFeed * radialDOC * inputADOC).toFixed(2); 
+            const schutteMRR = (currentMRR * 1.45).toFixed(2); // Simulating 45% gain
+            const efficiencyGain = (((schutteMRR - currentMRR) / currentMRR) * 100).toFixed(1);
+            const currentCycleTime = (1000 / currentMRR).toFixed(1);
+            const schutteCycleTime = (1000 / schutteMRR).toFixed(1);
+            const hpRequired = (parseFloat(schutteMRR) * 0.1).toFixed(1); 
+            
+            data = {
+                type: 'MRR_RESULT',
+                title: 'MRR Performance Analysis',
+                recommendation: `High-value performance confirmed. Schutte spindle capability provides a ${efficiencyGain}% increase in MRR, translating directly to reduced cycle time and cost per part. Check HP requirements below.`,
+                metrics: {
+                    mr_rate_current: `${currentMRR} in³/min (Current)`,
+                    mr_rate_schutte: `${schutteMRR} in³/min (Schutte Optimal)`,
+                    hp_required: `${hpRequired} HP (Required at Peak MRR)`,
+                    cycle_time_current: `${currentCycleTime} seconds/unit (Current)`,
+                    cycle_time_schutte: `${schutteCycleTime} seconds/unit (Schutte Optimal)`,
+                    savings: `$12,000 Annual Savings (Placeholder)` 
+                }
+            };
+
+        // 2. Recommendation/Efficiency Mock (Consultative value)
+        } else if (mode === 'recommend') {
+            const rigidity = document.getElementById('inputRigidity').value;
+            const material = document.getElementById('inputMaterial').value;
+            const ra = parseFloat(document.getElementById('inputRa').value) || 32;
+
+            // Calculations
+            const stabilityFactor = rigidity === 'Low' ? 0.65 : 0.95;
+            const roughnessAchieved = (ra * stabilityFactor).toFixed(1);
+            const vibrationLevel = (100 - stabilityFactor * 100).toFixed(0);
+            const toolLifeAdj = (rigidity === 'Low' ? 'Reduced by 30%' : 'Optimized');
+
+            const advisoryMessage = rigidity === 'Low' 
+                ? "WARNING: Low rigidity detected. Reduce cutting forces immediately to prevent chatter and catastrophic tool failure. Surface finish targets are at risk." 
+                : "Setup is robust. Focus on maximizing cutting speed and optimizing coolant for best results. No stability issues detected.";
+
+            data = {
+                type: 'EFFICIENCY_RESULT',
+                title: 'Project Efficiency Advisor',
+                recommendation: advisoryMessage,
+                metrics: {
+                    material: material,
+                    fixture_rigidity: rigidity,
+                    achieved_surface_finish: `${roughnessAchieved} Ra (Predicted)`,
+                    vibration_risk: `${vibrationLevel}% (Stability)`,
+                    estimated_tool_life: toolLifeAdj,
+                }
+            };
+
+        // 3. Verification Mock (Safety value)
+        } else if (mode === 'verify') {
+            const feed = parseFloat(document.getElementById('inputVerifyFeed').value) || 150;
+            const rpm = parseFloat(document.getElementById('inputVerifyRPM').value) || 12000;
+            const strength = parseFloat(document.getElementById('inputStrength').value) || 1.8;
+
+            // Calculations
+            const torqueRequired = ((feed * strength * 0.1) / (rpm / 10000)).toFixed(1); 
+            const spindleLoad = (torqueRequired * 1.5).toFixed(0);
+            const deflectionRisk = (feed / rpm * 100 * strength).toFixed(2);
+
+            const status = torqueRequired > 3.0 || deflectionRisk > 0.05 ? 'Warning' : 'Verified';
+            
+            const safetyMessage = status === 'Warning' ? 
+                "SAFETY WARNING: Calculated parameters exceed safe operational limits for torque or deflection. Potential for tool breakage is high." : 
+                "STATUS: All calculations verified. Parameters are within safe operational limits. Proceed with confidence.";
+
+            data = {
+                type: 'VERIFICATION_RESULT',
+                title: 'Calculation Verification Status',
+                recommendation: safetyMessage,
+                metrics: {
+                    calculated_torque: `${torqueRequired} ft-lb (Req.)`,
+                    spindle_load: `${spindleLoad}% (Projected Max)`,
+                    tool_deflection_risk: `${deflectionRisk} in (Micro-Deflection)`,
+                    safety: status,
+                }
+            };
+        }
+
+        return { success: true, data: data };
+    }
+    
+    // --- Restored Animation (Used for calculation time) ---
+    function animateProgressBar() {
+        document.getElementById('progressBar').style.width = '0%';
+        let progress = 0;
+        let statusIndex = 0;
+        const statuses = [
+            'Analyzing input parameters...', 'Executing proprietary Schutte algorithms...', 
+            'Calculating optimization matrices...', 'Finalizing report generation...'
+        ];
+        
+        return new Promise(resolve => {
+            const interval = setInterval(() => {
+                progress += 5;  
+                document.getElementById('progressBar').style.width = progress + '%';
+                
+                if (progress % 17 < 5 && statusIndex < statuses.length) {
+                    document.getElementById('statusText').textContent = statuses[statusIndex];
+                    statusIndex++;
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 60);
+        });
+    }
+
+    // --- Final function to display results in the resultsView ---
+    function showResults() {
+        showView('resultsView');    
+        
+        const data = currentSample;
+        const scanDate = new Date();
+        
+        document.getElementById('timestamp').textContent = scanDate.toLocaleString();
+        
+        // 1. Populate Main Summary Cards
+        document.getElementById('confidenceValue').textContent = currentProject ? currentProject.name : 'Quick Calc'; 
+        document.getElementById('issuesCount').textContent = data.title.split(' ')[0]; 
+
+        // Start generating the content for the 'Calculation Details' box
+        let html = `
+            <div style="padding: 1.5rem 1.5rem 0.5rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; flex-direction: column;">
+                    <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem;">${data.title}</div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        ${data.metrics.recommendation || data.metrics.message || 'Calculation Complete. See Key Metrics below.'}
+                    </p>
+                </div>
+                <div class="severity-badge severity-${data.metrics.safety === 'Warning' ? 'high' : 'low'}">RESULT</div>
+            </div>
+            
+            <h3 style="margin-top: 1.5rem; padding: 0 1.5rem;">Key Metrics:</h3>
+
+            <div style="padding: 0 1.5rem 1.5rem; line-height: 1.8;">
+        `;
+
+        // 2. Populate Key Metrics list
+        for (const [key, value] of Object.entries(data.metrics)) {
+            // Skips irrelevant output variables
+            if (key === 'savings' || key === 'recommendation' || key === 'message' || key === 'safety') continue; 
+            html += `<p style="margin-bottom: 0.25rem;"><strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> ${value}</p>`;
+        }
+        
+        // Close the inner padding div
+        html += `</div>`; 
+        
+        document.getElementById('issuesList').innerHTML = html;
+        window.scrollTo(0, 0);
+    }
+
+
+    // --- CORE FUNCTION: Initializes Tracking ---
+    function initializeLeadTracking() {
+        const urlLeadId = getUrlParameter('leadId');
+        const urlExhId = getUrlParameter('exhId');
+        const storedLeadId = localStorage.getItem('afferio_leadId');
+        const storedExhId = localStorage.getItem('afferio_exhId');
+
+        if (urlLeadId && urlExhId) {
+            currentLeadId = urlLeadId;
+            currentExhId = urlExhId;
+            localStorage.setItem('afferio_leadId', currentLeadId);
+            localStorage.setItem('afferio_exhId', currentExhId);
+            console.log(`[AfferioIQ] New Session Started. Lead ID: ${currentLeadId}`);
+
+        } else if (storedLeadId && storedExhId) {
+            currentLeadId = storedLeadId;
+            currentExhId = storedExhId;
+            console.log(`[AfferioIQ] Returning User Session. Lead ID: ${currentLeadId}`);
+            
+        } else {
+            currentLeadId = 'DEMO_MODE'; // Set a default ID for the demo to work
+            console.warn("[AfferioIQ] DEMO MODE: Tracking Failed.");
+        }
+    }
+
+
+    // --- PWA Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered.');
+                    initializeLeadTracking();  
+                })
+                .catch(error => console.error('Service Worker registration failed:', error));
+        } else {
+            initializeLeadTracking();  
+        }
+        loadSettings(); 
+    });
+</script>
+
+// =======================================================
+// === GLOBAL VARIABLES & CORE PWA FUNCTIONS (SCHUTTE P-OPT PWA) ===
+// =======================================================
+    // --- Global Tracking Variables ---
+    let currentSample = null;
+    let currentProject = null;
+    let currentLeadId = null;
+    let currentExhId = null;
+    let mockCalculationsRemaining = 25; // Define the starting cap for the demo
+    window.selectedSampleKey = null;    
+    let currentUtilityMode = null; // Tracks 'mrr', 'recommend', or 'verify'
+
+    const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE';  
+    const BACKEND_URL = 'YOUR_SECURE_BACKEND_URL';  
+
+    // Removed sampleView and cameraView from array as they were deleted from HTML
+    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView']; 
+
+
+    // Utility Function to get URL Parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    
+    // --- View Management Function ---
+    function showView(viewId) {
+        allViews.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+        const targetEl = document.getElementById(viewId);
+        if (targetEl) targetEl.classList.remove('hidden');
+        
+        // Close menu if open
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        if (sideMenu) sideMenu.classList.remove('open');
+        if (menuOverlay) menuOverlay.classList.remove('open'); 
+    }
+
+    
+    // --- Project/Settings Management Stubs ---
+    function getProjects() { return JSON.parse(localStorage.getItem('struc_projects') || '[]'); }
+    function saveProjects(projects) { localStorage.setItem('struc_projects', JSON.stringify(projects)); }
+    function loadSettings() { /* ... (settings loading stub) ... */ }
+    function saveSettings() { alert('Settings saved! (Mock)'); showDashboardView(); }
+    
+    // =======================================================
+    // === SCHUTTE P-OPT UTILITY HUB LOGIC ===
+    // =======================================================
 
     // --- FUNCTION: Save Project Details and Continue to Input View ---
     function saveProjectAndContinue() {
