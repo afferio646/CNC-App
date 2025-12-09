@@ -882,6 +882,22 @@ function toggleMenu() {
     document.getElementById('menuOverlay').classList.toggle('open');
 }
 
+function showView(viewId) {
+    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView'];
+    allViews.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+    const targetEl = document.getElementById(viewId);
+    if (targetEl) targetEl.classList.remove('hidden');
+    
+    // Close menu if open
+    const sideMenu = document.getElementById('sideMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    if (sideMenu) sideMenu.classList.remove('open');
+    if (menuOverlay) menuOverlay.classList.remove('open'); 
+}
+
 function showDashboardView() { 
     showView('dashboardView'); 
     // CRITICAL: Reset the calculation status when returning to the dashboard
@@ -892,7 +908,9 @@ function showDashboardView() { 
     if (calcBtn) calcBtn.disabled = false;
 }
 
-function showProjectsView() { showView('projectsView'); } 
+// FIX: showProjectsView now correctly shows the Projects View/List
+function showProjectsView() { showView('projectsView'); }  
+
 function showSettingsView() { showView('settingsView'); } 
 function showProjectDetailView() { showView('projectDetailView'); }
 
@@ -904,7 +922,7 @@ function closeProjectModal() {
     document.getElementById('projectModal').classList.add('hidden');
 }
 
-// --- NEW FUNCTION: Called by the cards, combines mode setting and modal opening ---
+// --- FUNCTION FOR CARDS: Sets the mode, renders the form, and opens the modal ---
 function openUtilityModal(mode) {
     currentUtilityMode = mode;
     window.selectedSampleKey = mode; // For compatibility
@@ -918,7 +936,7 @@ function openUtilityModal(mode) {
     // RENDER THE FORM DATA FIRST 
     renderInputForm(mode); 
 
-    // Open the Project Modal
+    // Open the Project Modal 
     openProjectModal(); 
 }
 
@@ -960,9 +978,6 @@ async function runCalculation() {
     const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE';  
     const BACKEND_URL = 'YOUR_SECURE_BACKEND_URL';  
 
-    // Removed sampleView and cameraView from array as they were deleted from HTML
-    const allViews = ['dashboardView', 'inputView', 'resultsView', 'projectsView', 'settingsView', 'projectDetailView']; 
-
 
     // Utility Function to get URL Parameters
     function getUrlParameter(name) {
@@ -971,23 +986,6 @@ async function runCalculation() {
         const results = regex.exec(location.search);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
-    
-    // --- View Management Function ---
-    function showView(viewId) {
-        allViews.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.add('hidden');
-        });
-        const targetEl = document.getElementById(viewId);
-        if (targetEl) targetEl.classList.remove('hidden');
-        
-        // Close menu if open
-        const sideMenu = document.getElementById('sideMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-        if (sideMenu) sideMenu.classList.remove('open');
-        if (menuOverlay) menuOverlay.classList.remove('open'); 
-    }
-
     
     // --- Project/Settings Management Stubs ---
     function getProjects() { return JSON.parse(localStorage.getItem('struc_projects') || '[]'); }
@@ -1276,14 +1274,13 @@ async function runCalculation() {
             navigator.serviceWorker.register('/sw.js')
                 .then(registration => {
                     console.log('Service Worker registered.');
-                    initializeLeadTracking();  
                 })
-                .catch(error => console.error('Service Worker registration failed:', error));
-        } else {
-            initializeLeadTracking();  
-        }
+                .catch(error => console.error('Service Worker registration failed:', error));
+        } 
+        
+        initializeLeadTracking();  
         loadSettings(); 
     });
-    </script>
+</script>
 </body>
 </html>
